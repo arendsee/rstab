@@ -43,7 +43,8 @@ parser$add_argument(
 parser$add_argument(
   '-e', '--expression',
   metavar='CODE',
-  help='R code')
+  help='R code',
+  nargs="+")
 
 args <- parser$parse_args()
 N <- length(args$files)
