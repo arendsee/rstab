@@ -29,6 +29,12 @@ parser$add_argument(
   nargs="+")
 
 parser$add_argument(
+  '-c' , '--comment-character',
+  help='Set comment character (default, no comments)',
+  default='""' 
+)
+
+parser$add_argument(
   '-k', '--keys',
   metavar="x",
   help='Key columns for input files',
@@ -87,17 +93,14 @@ if(is.null(args$headers)){
 }
 
 
-
 # If delimiters are given, and there is not exactly one for each file, die
 stopifnot(length(args$sep) == N)
 
 for (i in 1:N){
-  load.template <- 'F%d <- read.table("%s", header=%s, sep="%s")'
-  load.cmd <- sprintf(load.template, i, args$files[i], args$headers[i], args$sep[i])
-  eval(parse(text=load.cmd))
-  dt.template <- 'F%d <- data.table(F%d, key=colnames(F%d)[%d])'
-  dt.cmd <- sprintf(dt.template, i, i, i, args$keys[i])
-  eval(parse(text=dt.cmd))
+  d <- read.table(args$files[i], header=args$headers[i], sep=args$sep[i], comment.char="")
+  d <- as.data.table(d, names(d)[args$keys[i]])
+  assign(paste0('F', i), d)
+  rm(d)
 }
 
 if(is.null(args$expression)){
